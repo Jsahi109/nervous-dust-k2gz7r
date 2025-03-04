@@ -1,0 +1,392 @@
+<%- include('layout', { title: 'Call Dispositions' }) %>
+
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="md:flex md:items-center md:justify-between">
+        <div class="flex-1 min-w-0">
+            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                Call Dispositions
+            </h2>
+        </div>
+        <div class="mt-4 flex md:mt-0 md:ml-4">
+            <button type="button" onclick="showUploadModal()"
+                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-upload mr-2"></i>
+                Upload Dispositions
+            </button>
+        </div>
+    </div>
+
+    <!-- Disposition Statistics -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <!-- Total Dispositions -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-phone-alt text-2xl text-indigo-600"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Total Dispositions</dt>
+                            <dd class="flex items-baseline">
+                                <div class="text-2xl font-semibold text-gray-900" id="total-dispositions">0</div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Callbacks -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-phone-volume text-2xl text-green-600"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Callbacks</dt>
+                            <dd class="flex items-baseline">
+                                <div class="text-2xl font-semibold text-gray-900" id="total-callbacks">0</div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Not Interested -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-times-circle text-2xl text-red-600"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Not Interested</dt>
+                            <dd class="flex items-baseline">
+                                <div class="text-2xl font-semibold text-gray-900" id="total-not-interested">0</div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wrong Numbers -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-2xl text-yellow-600"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Wrong Numbers</dt>
+                            <dd class="flex items-baseline">
+                                <div class="text-2xl font-semibold text-gray-900" id="total-wrong-numbers">0</div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dispositions List -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Dispositions</h3>
+            <div class="flex space-x-2">
+                <input type="text" id="search-input" placeholder="Search phone numbers..."
+                       class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                <select id="status-filter" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                    <option value="">All Statuses</option>
+                    <option value="Callback">Callback</option>
+                    <option value="Not Interested">Not Interested</option>
+                    <option value="Wrong Number">Wrong Number</option>
+                    <option value="Do Not Call">Do Not Call</option>
+                    <option value="Invalid">Invalid</option>
+                </select>
+            </div>
+        </div>
+        <div class="border-t border-gray-200">
+            <div class="flow-root">
+                <ul role="list" class="divide-y divide-gray-200" id="dispositions-list"></ul>
+            </div>
+        </div>
+        <!-- Pagination -->
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div class="flex-1 flex justify-between sm:hidden">
+                <button onclick="previousPage()" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Previous
+                </button>
+                <button onclick="nextPage()" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Next
+                </button>
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        Showing <span id="page-start">1</span> to <span id="page-end">10</span> of
+                        <span id="total-items">0</span> results
+                    </p>
+                </div>
+                <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                        <button onclick="previousPage()" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button onclick="nextPage()" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div id="upload-modal" class="fixed z-10 inset-0 hidden">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+            <div>
+                <div class="mt-3 text-center sm:mt-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        Upload Dispositions
+                    </h3>
+                    <div class="mt-2">
+                        <form id="upload-form" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">
+                                    CSV File
+                                </label>
+                                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                    <div class="space-y-1 text-center">
+                                        <i class="fas fa-file-csv text-4xl text-gray-400"></i>
+                                        <div class="flex text-sm text-gray-600">
+                                            <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                                <span>Upload a file</span>
+                                                <input id="file-upload" name="file" type="file" class="sr-only" accept=".csv">
+                                            </label>
+                                            <p class="pl-1">or drag and drop</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500">CSV files only</p>
+                                    </div>
+                                </div>
+                                <div id="file-name" class="mt-2 text-sm text-gray-500"></div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+                <button type="button" onclick="uploadDispositions()"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm">
+                    Upload
+                </button>
+                <button type="button" onclick="hideUploadModal()"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dispositions JavaScript -->
+<script>
+    let currentPage = 1;
+    const itemsPerPage = 10;
+
+    // Modal handling
+    function showUploadModal() {
+        document.getElementById('upload-modal').classList.remove('hidden');
+    }
+
+    function hideUploadModal() {
+        document.getElementById('upload-modal').classList.add('hidden');
+        document.getElementById('upload-form').reset();
+        document.getElementById('file-name').textContent = '';
+    }
+
+    // File upload handling
+    document.getElementById('file-upload').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            document.getElementById('file-name').textContent = `Selected file: ${file.name}`;
+        }
+    });
+
+    // Upload dispositions
+    async function uploadDispositions() {
+        const form = document.getElementById('upload-form');
+        const file = form.querySelector('input[type="file"]').files[0];
+
+        if (!file) {
+            showToast('Please select a file', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        showLoading();
+        try {
+            const response = await fetch('/dispositions/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                showToast(`Upload successful: ${data.totalProcessed} records processed`);
+                hideUploadModal();
+                loadDispositions();
+                loadStats();
+            } else {
+                showToast(data.error, 'error');
+            }
+        } catch (error) {
+            console.error('Upload Error:', error);
+            showToast('Error uploading dispositions', 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Load disposition statistics
+    async function loadStats() {
+        try {
+            const response = await fetch('/dispositions/stats');
+            const stats = await response.json();
+
+            let total = 0;
+            stats.forEach(stat => {
+                total += stat.count;
+                switch (stat.disposition_status) {
+                    case 'Callback':
+                        document.getElementById('total-callbacks').textContent = formatNumber(stat.count);
+                        break;
+                    case 'Not Interested':
+                        document.getElementById('total-not-interested').textContent = formatNumber(stat.count);
+                        break;
+                    case 'Wrong Number':
+                        document.getElementById('total-wrong-numbers').textContent = formatNumber(stat.count);
+                        break;
+                }
+            });
+            document.getElementById('total-dispositions').textContent = formatNumber(total);
+        } catch (error) {
+            console.error('Stats Error:', error);
+            showToast('Error loading statistics', 'error');
+        }
+    }
+
+    // Load dispositions list
+    async function loadDispositions() {
+        const searchTerm = document.getElementById('search-input').value;
+        const statusFilter = document.getElementById('status-filter').value;
+
+        showLoading();
+        try {
+            let url = `/dispositions?page=${currentPage}&limit=${itemsPerPage}`;
+            if (searchTerm) url += `&search=${searchTerm}`;
+            if (statusFilter) url += `&status=${statusFilter}`;
+
+            const response = await fetch(url);
+            const data = await response.json();
+
+            const dispositionsList = document.getElementById('dispositions-list');
+            dispositionsList.innerHTML = data.dispositions.map(d => `
+                <li class="py-4 px-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-phone-alt text-${getStatusColor(d.disposition_status)}-500 text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900">
+                                ${d.phone_number}
+                            </p>
+                            <p class="text-sm text-gray-500">
+                                ${d.first_name} ${d.last_name} • ${d.disposition_status}
+                            </p>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-500">
+                                ${formatDate(d.disposition_date)}
+                            </span>
+                        </div>
+                    </div>
+                </li>
+            `).join('');
+
+            // Update pagination
+            document.getElementById('page-start').textContent = (currentPage - 1) * itemsPerPage + 1;
+            document.getElementById('page-end').textContent = Math.min(currentPage * itemsPerPage, data.total);
+            document.getElementById('total-items').textContent = data.total;
+        } catch (error) {
+            console.error('Load Dispositions Error:', error);
+            showToast('Error loading dispositions', 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    function getStatusColor(status) {
+        switch (status) {
+            case 'Callback': return 'green';
+            case 'Not Interested': return 'red';
+            case 'Wrong Number': return 'yellow';
+            case 'Do Not Call': return 'red';
+            case 'Invalid': return 'gray';
+            default: return 'indigo';
+        }
+    }
+
+    // Pagination
+    function previousPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            loadDispositions();
+        }
+    }
+
+    function nextPage() {
+        currentPage++;
+        loadDispositions();
+    }
+
+    // Search and filter
+    document.getElementById('search-input').addEventListener('input', debounce(() => {
+        currentPage = 1;
+        loadDispositions();
+    }, 300));
+
+    document.getElementById('status-filter').addEventListener('change', () => {
+        currentPage = 1;
+        loadDispositions();
+    });
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Initial load
+    loadDispositions();
+    loadStats();
+</script>

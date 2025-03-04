@@ -1,0 +1,208 @@
+<%- include('layout', { title: 'Upload Data' }) %>
+
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="md:flex md:items-center md:justify-between">
+        <div class="flex-1 min-w-0">
+            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                Upload Data
+            </h2>
+        </div>
+    </div>
+
+    <!-- Upload Form -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <form id="uploadForm" class="space-y-6">
+                <!-- File Upload -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">CSV File</label>
+                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                        <div class="space-y-1 text-center">
+                            <i class="fas fa-file-csv text-4xl text-gray-400"></i>
+                            <div class="flex text-sm text-gray-600">
+                                <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                    <span>Upload a file</span>
+                                    <input id="file-upload" name="file" type="file" class="sr-only" accept=".csv">
+                                </label>
+                                <p class="pl-1">or drag and drop</p>
+                            </div>
+                            <p class="text-xs text-gray-500">CSV files only</p>
+                        </div>
+                    </div>
+                    <div id="file-name" class="mt-2 text-sm text-gray-500"></div>
+                </div>
+
+                <!-- Vendor Name -->
+                <div>
+                    <label for="vendor-name" class="block text-sm font-medium text-gray-700">Vendor Name</label>
+                    <div class="mt-1">
+                        <input type="text" name="vendor_name" id="vendor-name" required
+                               class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                    </div>
+                </div>
+
+                <!-- Field Mapping -->
+                <div id="field-mapping" class="hidden">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Field Mapping</h3>
+                    <div class="bg-gray-50 p-4 rounded-md">
+                        <div class="space-y-4" id="mapping-fields"></div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-end">
+                    <button type="submit"
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <i class="fas fa-upload mr-2"></i>
+                        Upload Data
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Upload History -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Upload History</h3>
+        </div>
+        <div class="border-t border-gray-200">
+            <div class="flow-root">
+                <ul role="list" class="divide-y divide-gray-200" id="upload-history"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload JavaScript -->
+<script>
+    // File upload handling
+    const fileUpload = document.getElementById('file-upload');
+    const fileName = document.getElementById('file-name');
+    const fieldMapping = document.getElementById('field-mapping');
+    const mappingFields = document.getElementById('mapping-fields');
+    const uploadForm = document.getElementById('uploadForm');
+    const uploadHistory = document.getElementById('upload-history');
+
+    fileUpload.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        fileName.textContent = `Selected file: ${file.name}`;
+
+        // Preview CSV columns
+        const formData = new FormData();
+        formData.append('file', file);
+
+        showLoading();
+        try {
+            const response = await fetch('/upload/preview', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                // Show field mapping section
+                fieldMapping.classList.remove('hidden');
+                
+                // Create mapping fields
+                mappingFields.innerHTML = data.headers.map(header => `
+                    <div class="grid grid-cols-2 gap-4 items-center">
+                        <div class="text-sm font-medium text-gray-700">${header}</div>
+                        <div>
+                            <select name="mapping[${header}]" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                <option value="">Do not import</option>
+                                <option value="phone_number" ${header.toLowerCase().includes('phone') ? 'selected' : ''}>Phone Number</option>
+                                <option value="first_name" ${header.toLowerCase().includes('first') ? 'selected' : ''}>First Name</option>
+                                <option value="last_name" ${header.toLowerCase().includes('last') ? 'selected' : ''}>Last Name</option>
+                                <option value="street_address" ${header.toLowerCase().includes('address') ? 'selected' : ''}>Street Address</option>
+                                <option value="city" ${header.toLowerCase().includes('city') ? 'selected' : ''}>City</option>
+                                <option value="state" ${header.toLowerCase().includes('state') ? 'selected' : ''}>State</option>
+                                <option value="zip_code" ${header.toLowerCase().includes('zip') ? 'selected' : ''}>Zip Code</option>
+                                <option value="region" ${header.toLowerCase().includes('region') ? 'selected' : ''}>Region</option>
+                                <option value="county" ${header.toLowerCase().includes('county') ? 'selected' : ''}>County</option>
+                                <option value="email" ${header.toLowerCase().includes('email') ? 'selected' : ''}>Email</option>
+                            </select>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        } catch (error) {
+            console.error('Preview Error:', error);
+            showToast('Error previewing file', 'error');
+        } finally {
+            hideLoading();
+        }
+    });
+
+    // Form submission
+    uploadForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(uploadForm);
+        
+        showLoading();
+        try {
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                showToast(`Upload successful: ${data.totalRecords} records processed, ${data.duplicates} duplicates found`);
+                uploadForm.reset();
+                fileName.textContent = '';
+                fieldMapping.classList.add('hidden');
+                loadUploadHistory();
+            } else {
+                showToast(data.error, 'error');
+            }
+        } catch (error) {
+            console.error('Upload Error:', error);
+            showToast('Error uploading file', 'error');
+        } finally {
+            hideLoading();
+        }
+    });
+
+    // Load upload history
+    async function loadUploadHistory() {
+        try {
+            const response = await fetch('/upload/history');
+            const uploads = await response.json();
+
+            uploadHistory.innerHTML = uploads.map(upload => `
+                <li class="py-4 px-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-file-upload text-green-500 text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">
+                                ${upload.filename}
+                            </p>
+                            <p class="text-sm text-gray-500">
+                                ${upload.vendor_name} • ${formatNumber(upload.total_records)} records
+                                ${upload.duplicate_count > 0 ? `• ${formatNumber(upload.duplicate_count)} duplicates` : ''}
+                            </p>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-500">
+                                ${formatDate(upload.upload_date)}
+                            </span>
+                        </div>
+                    </div>
+                </li>
+            `).join('');
+        } catch (error) {
+            console.error('History Error:', error);
+            showToast('Error loading upload history', 'error');
+        }
+    }
+
+    // Initial load
+    loadUploadHistory();
+</script>

@@ -1,0 +1,228 @@
+<%- include('layout', { title: 'Download Data' }) %>
+
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="md:flex md:items-center md:justify-between">
+        <div class="flex-1 min-w-0">
+            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                Download Data
+            </h2>
+        </div>
+    </div>
+
+    <!-- Download Form -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <form id="downloadForm" class="space-y-6">
+                <!-- Filename -->
+                <div>
+                    <label for="filename" class="block text-sm font-medium text-gray-700">
+                        File Name
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <div class="mt-1">
+                        <input type="text" name="filename" id="filename" required
+                               class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                               placeholder="Enter file name (without .csv)">
+                    </div>
+                </div>
+
+                <!-- Zip Codes -->
+                <div>
+                    <label for="zip-codes" class="block text-sm font-medium text-gray-700">
+                        Zip Codes
+                    </label>
+                    <div class="mt-1">
+                        <input type="text" name="zip_codes" id="zip-codes"
+                               class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                               placeholder="Enter zip codes (comma-separated)">
+                    </div>
+                    <p class="mt-1 text-sm text-gray-500">
+                        Separate multiple zip codes with commas (e.g., 12345, 67890)
+                    </p>
+                </div>
+
+                <!-- Campaign Selection -->
+                <div>
+                    <label for="campaign" class="block text-sm font-medium text-gray-700">
+                        Campaign
+                    </label>
+                    <div class="mt-1">
+                        <select id="campaign" name="campaign_id"
+                                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            <option value="">Select a campaign</option>
+                            <% campaigns.forEach(function(campaign) { %>
+                            <option value="<%= campaign.id %>">
+                                <%= campaign.campaign_name %> (<%= formatNumber(campaign.remaining_data) %> records remaining)
+                            </option>
+                            <% }); %>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Vendor Name -->
+                <div>
+                    <label for="vendor-name" class="block text-sm font-medium text-gray-700">
+                        Vendor Name
+                    </label>
+                    <div class="mt-1">
+                        <input type="text" name="vendor_name" id="vendor-name"
+                               class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                               placeholder="Filter by vendor name">
+                    </div>
+                </div>
+
+                <!-- Disposition Filters -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">
+                            Include Dispositions
+                        </label>
+                        <div class="mt-2 space-y-2">
+                            <div class="flex items-center">
+                                <input type="checkbox" name="include_dispositions[]" value="Callback"
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                <label class="ml-2 text-sm text-gray-700">Callback</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" name="include_dispositions[]" value="Not Interested"
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                <label class="ml-2 text-sm text-gray-700">Not Interested</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" name="include_dispositions[]" value="Wrong Number"
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                <label class="ml-2 text-sm text-gray-700">Wrong Number</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">
+                            Exclude Dispositions
+                        </label>
+                        <div class="mt-2 space-y-2">
+                            <div class="flex items-center">
+                                <input type="checkbox" name="exclude_dispositions[]" value="Do Not Call"
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                <label class="ml-2 text-sm text-gray-700">Do Not Call</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" name="exclude_dispositions[]" value="Invalid"
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                <label class="ml-2 text-sm text-gray-700">Invalid</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-end">
+                    <button type="submit"
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <i class="fas fa-download mr-2"></i>
+                        Download Data
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Download History -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Download History</h3>
+        </div>
+        <div class="border-t border-gray-200">
+            <div class="flow-root">
+                <ul role="list" class="divide-y divide-gray-200" id="download-history"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Download JavaScript -->
+<script>
+    const downloadForm = document.getElementById('downloadForm');
+    const downloadHistory = document.getElementById('download-history');
+
+    // Form submission
+    downloadForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (!downloadForm.filename.value) {
+            showToast('File name is required', 'error');
+            return;
+        }
+
+        showLoading();
+        try {
+            const formData = new FormData(downloadForm);
+            const response = await fetch('/download', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                // Create a blob from the response and trigger download
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${downloadForm.filename.value}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+
+                showToast('Download started successfully');
+                loadDownloadHistory();
+            } else {
+                const error = await response.json();
+                showToast(error.error || 'Error downloading data', 'error');
+            }
+        } catch (error) {
+            console.error('Download Error:', error);
+            showToast('Error processing download', 'error');
+        } finally {
+            hideLoading();
+        }
+    });
+
+    // Load download history
+    async function loadDownloadHistory() {
+        try {
+            const response = await fetch('/download/history');
+            const downloads = await response.json();
+
+            downloadHistory.innerHTML = downloads.map(download => `
+                <li class="py-4 px-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-download text-blue-500 text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">
+                                ${download.filename}
+                            </p>
+                            <p class="text-sm text-gray-500">
+                                ${formatNumber(download.record_count)} records
+                            </p>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-500">
+                                ${formatDate(download.download_date)}
+                            </span>
+                        </div>
+                    </div>
+                </li>
+            `).join('');
+        } catch (error) {
+            console.error('History Error:', error);
+            showToast('Error loading download history', 'error');
+        }
+    }
+
+    // Initial load
+    loadDownloadHistory();
+</script>

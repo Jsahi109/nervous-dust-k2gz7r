@@ -1,0 +1,275 @@
+<%- include('layout', { title: 'Dashboard' }) %>
+
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="md:flex md:items-center md:justify-between">
+        <div class="flex-1 min-w-0">
+            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                Dashboard
+            </h2>
+        </div>
+        <div class="mt-4 flex md:mt-0 md:ml-4">
+            <span class="ml-3">
+                <button type="button" onclick="refreshStats()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <i class="fas fa-sync-alt mr-2"></i>
+                    Refresh Stats
+                </button>
+            </span>
+        </div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <!-- Total Records -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-database text-2xl text-indigo-600"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Total Records
+                            </dt>
+                            <dd class="flex items-baseline">
+                                <div class="text-2xl font-semibold text-gray-900" id="total-records">
+                                    <%= formatNumber(stats.totalRecords) %>
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Uploaded Files -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-file-upload text-2xl text-green-600"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Uploaded Files
+                            </dt>
+                            <dd class="flex items-baseline">
+                                <div class="text-2xl font-semibold text-gray-900" id="total-files">
+                                    <%= formatNumber(stats.uploadStats.total_files) %>
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Duplicates -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-copy text-2xl text-yellow-600"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Duplicate Records
+                            </dt>
+                            <dd class="flex items-baseline">
+                                <div class="text-2xl font-semibold text-gray-900" id="total-duplicates">
+                                    <%= formatNumber(stats.uploadStats.total_duplicates) %>
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Downloads -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-download text-2xl text-blue-600"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Downloaded Records
+                            </dt>
+                            <dd class="flex items-baseline">
+                                <div class="text-2xl font-semibold text-gray-900" id="total-downloads">
+                                    <%= formatNumber(stats.totalDownloads) %>
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <!-- Recent Uploads -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Recent Uploads
+                </h3>
+            </div>
+            <div class="border-t border-gray-200">
+                <div class="flow-root">
+                    <ul role="list" class="divide-y divide-gray-200" id="recent-uploads">
+                        <% recentActivity.uploads.forEach(function(upload) { %>
+                        <li class="py-4 px-4">
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-file-upload text-green-500 text-xl"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 truncate">
+                                        <%= upload.filename %>
+                                    </p>
+                                    <p class="text-sm text-gray-500">
+                                        <%= upload.vendor_name %> • <%= formatNumber(upload.total_records) %> records
+                                    </p>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-500">
+                                        <%= formatDate(upload.upload_date) %>
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                        <% }); %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Downloads -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Recent Downloads
+                </h3>
+            </div>
+            <div class="border-t border-gray-200">
+                <div class="flow-root">
+                    <ul role="list" class="divide-y divide-gray-200" id="recent-downloads">
+                        <% recentActivity.downloads.forEach(function(download) { %>
+                        <li class="py-4 px-4">
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-download text-blue-500 text-xl"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 truncate">
+                                        <%= download.filename %>
+                                    </p>
+                                    <p class="text-sm text-gray-500">
+                                        <%= formatNumber(download.record_count) %> records
+                                    </p>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-500">
+                                        <%= formatDate(download.download_date) %>
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                        <% }); %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard JavaScript -->
+<script>
+    // Refresh dashboard statistics
+    async function refreshStats() {
+        showLoading();
+        try {
+            const [statsResponse, activityResponse] = await Promise.all([
+                fetch('/api/stats'),
+                fetch('/api/recent-activity')
+            ]);
+
+            const stats = await statsResponse.json();
+            const activity = await activityResponse.json();
+
+            // Update statistics
+            document.getElementById('total-records').textContent = formatNumber(stats.totalRecords);
+            document.getElementById('total-files').textContent = formatNumber(stats.uploadStats.total_files);
+            document.getElementById('total-duplicates').textContent = formatNumber(stats.uploadStats.total_duplicates);
+            document.getElementById('total-downloads').textContent = formatNumber(stats.totalDownloads);
+
+            // Update recent uploads
+            const uploadsContainer = document.getElementById('recent-uploads');
+            uploadsContainer.innerHTML = activity.uploads.map(upload => `
+                <li class="py-4 px-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-file-upload text-green-500 text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">
+                                ${upload.filename}
+                            </p>
+                            <p class="text-sm text-gray-500">
+                                ${upload.vendor_name} • ${formatNumber(upload.total_records)} records
+                            </p>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-500">
+                                ${formatDate(upload.upload_date)}
+                            </span>
+                        </div>
+                    </div>
+                </li>
+            `).join('');
+
+            // Update recent downloads
+            const downloadsContainer = document.getElementById('recent-downloads');
+            downloadsContainer.innerHTML = activity.downloads.map(download => `
+                <li class="py-4 px-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-download text-blue-500 text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">
+                                ${download.filename}
+                            </p>
+                            <p class="text-sm text-gray-500">
+                                ${formatNumber(download.record_count)} records
+                            </p>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-500">
+                                ${formatDate(download.download_date)}
+                            </span>
+                        </div>
+                    </div>
+                </li>
+            `).join('');
+
+            showToast('Dashboard updated successfully');
+        } catch (error) {
+            console.error('Error refreshing dashboard:', error);
+            showToast('Error updating dashboard', 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Auto-refresh every 5 minutes
+    setInterval(refreshStats, 300000);
+</script>

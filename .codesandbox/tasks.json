@@ -1,0 +1,25 @@
+{
+  // These tasks will run in order when initializing your CodeSandbox project.
+  "setupTasks": [
+    {
+      "name": "mkdir -p /project/sandbox/user-workspace",
+      "command": "mkdir -p /project/sandbox/user-workspace"
+    },
+    {
+      "name": "cd /opt/vscodium && ./bin/code-server --install-extension /project/sandbox/.devcontainer/blackboxagent.vsix",
+      "command": "cd /opt/vscodium && ./bin/code-server --install-extension /project/sandbox/.devcontainer/blackboxagent.vsix"
+    }
+  ],
+
+  // These tasks can be run from CodeSandbox. Running one will open a log in the app.
+  "tasks": {
+    "start-vscode": {
+      "name": "Start VSCode",
+      "command": "cd /opt/vscodium && ./bin/code-server --port 1025 --without-connection-token --accept-server-license-terms --host 0.0.0.0",
+      "runAtStart": true,
+      "preview": {
+        "port": 1025
+      }
+    }
+  }
+}

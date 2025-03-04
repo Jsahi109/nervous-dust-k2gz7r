@@ -1,0 +1,40 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div>
+            <div class="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-red-100">
+                <i class="fas fa-exclamation-triangle text-4xl text-red-600"></i>
+            </div>
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                Oops! Something went wrong
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-600">
+                <%= message %>
+            </p>
+            <% if (process.env.NODE_ENV === 'development' && error) { %>
+            <div class="mt-4">
+                <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-bug text-red-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">
+                                Error Details
+                            </h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <pre class="whitespace-pre-wrap"><%= error.stack %></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <% } %>
+        </div>
+        <div class="mt-8 text-center">
+            <a href="/" class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                <i class="fas fa-home mr-2"></i>
+                Return to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
